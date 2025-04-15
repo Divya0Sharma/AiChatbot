@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orchid Hotel Feedback Analyzer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #BF40BF;
+            --primary-light: #d373d3;
+            --primary-dark: #a336a3;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-gradient-1: #f3e5f5;
+            --bg-gradient-2: #e8f5e9;
+            --card-bg: white;
+            --text-color: var(--dark);
+            --input-bg: white;
+        }
+
+        [data-theme="dark"] {
+            --dark: #f8fafc;
+            --light: #1e293b;
+            --gray: #64748b;
+            --bg-gradient-1: #2e1b3d;
+            --bg-gradient-2: #1b2e3d;
+            --card-bg: #334155;
+            --text-color: #f8fafc;
+            --input-bg: #475569;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background 0.3s ease, color 0.2s ease;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            background: linear-gradient(-45deg, var(--bg-gradient-1), var(--bg-gradient-2));
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-right: 0.75rem;
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .tagline {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+            max-width: 600px;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            height: 70vh;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-header {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-header i {
+            margin-right: 0.5rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bot-message {
+            background: var(--light);
+            color: var(--dark);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .user-message {
+            background: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .analysis-result {
+            background: rgba(191, 64, 191, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            margin-top: 0.5rem;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+        }
+
+        .sentiment-positive {
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        .sentiment-neutral {
+            color: var(--warning);
+            font-weight: 500;
+        }
+
+        .sentiment-negative {
+            color: var(--danger);
+            font-weight: 500;
+        }
+
+        .rating-stars {
+            color: #f59e0b;
+            margin: 0.25rem 0;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 1rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            background: var(--card-bg);
+        }
+
+        .chat-input textarea {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            resize: none;
+            font-family: inherit;
+            outline: none;
+            transition: border 0.2s;
+            background: var(--input-bg);
+            color: var(--text-color);
+        }
+
+        .chat-input textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .send-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0 1.5rem;
+            margin-left: 0.5rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .loading-dots {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .loading-dots span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--gray);
+            margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .loading-dots span:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .loading-dots span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% { 
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        .api-settings {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .typing-indicator {
+            display: flex;
+            padding: 0.5rem 1rem;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--gray);
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .chat-container {
+                height: 80vh;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+
+            .theme-toggle {
+                top: 1rem;
+                right: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <i class="fas fa-hotel logo-icon"></i>
+                <div class="logo-text">Orchid Hotel Feedback AI</div>
+            </div>
+            <p class="tagline">Analyze guest feedback to improve your hotel's service quality and guest satisfaction</p>
+        </header>
+        
+        <div class="chat-container">
+            <div class="chat-header">
+                <i class="fas fa-concierge-bell"></i>
+                Hotel Guest Feedback Assistant
+            </div>
+            
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot-message">
+                    Welcome to Orchid Hotel Feedback Analyzer! I specialize in analyzing hotel guest feedback.
+                    <div class="analysis-result">
+                        <strong>Please provide:</strong><br>
+                        - Guest reviews<br>
+                        - Survey responses<br>
+                        - Comments about hotel services<br>
+                        - Any feedback about your property
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input">
+                <textarea id="user-input" placeholder="Paste hotel guest feedback here..." rows="2"></textarea>
+                <button class="send-btn" id="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="api-settings">
+            <h3><i class="fas fa-server"></i> Backend Connection</h3>
+            <p>Connected to local Python analysis server</p>
+        </div>
+        
+        <footer>
+            © 2023 Orchid Hotel Feedback AI. Helping you deliver exceptional guest experiences.
+        </footer>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatMessages = document.getElementById('chat-messages');
+            const userInput = document.getElementById('user-input');
+            const sendBtn = document.getElementById('send-btn');
+            const themeToggle = document.getElementById('themeToggle');
+            
+            // Theme Toggle Functionality
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            let darkMode = localStorage.getItem('darkMode') === 'true' || prefersDark;
+
+            function applyTheme() {
+                document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+                themeToggle.innerHTML = darkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            }
+
+            themeToggle.addEventListener('click', () => {
+                darkMode = !darkMode;
+                localStorage.setItem('darkMode', darkMode);
+                applyTheme();
+            });
+
+            // Initialize theme
+            applyTheme();
+
+            // Chat functionality
+            sendBtn.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            async function sendMessage() {
+                const message = userInput.value.trim();
+                if (message === '') return;
+                
+                // Add user message to chat
+                addMessage(message, 'user');
+                userInput.value = '';
+                
+                // Show loading indicator
+                const loadingId = showLoading();
+                
+                try {
+                    // Check if message is within scope
+                    if (!isHotelFeedback(message)) {
+                        removeLoading(loadingId);
+                        addMessage("This appears to be outside my scope. I specialize in analyzing hotel guest feedback about rooms, service, amenities, etc.", 'bot');
+                        return;
+                    }
+                    
+                    // Process with our Python backend
+                    const response = await analyzeFeedback(message);
+                    removeLoading(loadingId);
+                    
+                    // Add the analysis to chat
+                    addMessage(response, 'bot');
+                    
+                } catch (error) {
+                    removeLoading(loadingId);
+                    addMessage("Sorry, I encountered an error processing your feedback. Please try again later.", 'bot');
+                    console.error("Error:", error);
+                }
+            }
+            
+            function showLoading() {
+                const loadingId = "loading-" + Date.now();
+                const loadingDiv = document.createElement('div');
+                loadingDiv.id = loadingId;
+                loadingDiv.classList.add('message', 'bot-message');
+                loadingDiv.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
+                chatMessages.appendChild(loadingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                return loadingId;
+            }
+            
+            function removeLoading(id) {
+                const loadingElement = document.getElementById(id);
+                if (loadingElement) {
+                    loadingElement.remove();
+                }
+            }
+            
+            function addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+                
+                // Check if the text contains HTML tags
+                if (/<[a-z][\s\S]*>/i.test(text)) {
+                    messageDiv.innerHTML = text;
+                } else {
+                    messageDiv.textContent = text;
+                }
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            function isHotelFeedback(text) {
+                // Basic check for hotel-related keywords
+                const hotelKeywords = [
+                    'hotel', 'room', 'stay', 'guest', 'reception', 'lobby',
+                    'check-in', 'check-out', 'reservation', 'amenities',
+                    'housekeeping', 'concierge', 'front desk', 'bellhop',
+                    'maid', 'suite', 'dining', 'restaurant', 'breakfast',
+                    'pool', 'gym', 'spa', 'service', 'staff', 'cleanliness',
+                    'comfort', 'noise', 'view', 'bed', 'pillow', 'shower',
+                    'toiletries', 'minibar', 'tv', 'wifi', 'air conditioning'
+                ];
+                
+                const lowerText = text.toLowerCase();
+                return hotelKeywords.some(keyword => lowerText.includes(keyword));
+            }
+            
+            async function analyzeFeedback(feedback) {
+                try {
+                    // Show typing indicator
+                    const typingId = showTypingIndicator();
+                    
+                    const response = await fetch('http://localhost:5000/analyze', {
+                        method: 'POST',
+                        mode: 'cors',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            feedback: feedback
+                        })
+                    });
+                    
+                    removeTypingIndicator(typingId);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Request failed with status ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    return formatAnalysisResponse(data);
+                } catch (error) {
+                    console.error("Analysis error:", error);
+                    throw error;
+                }
+            }
+
+            function formatAnalysisResponse(data) {
+                return `
+                    <strong>Analysis Results:</strong>
+                    <div class="analysis-result">
+                        <strong>Overall Sentiment:</strong> 
+                        <span class="${data.sentiment_class}">${data.sentiment}</span>
+                        <span class="sentiment-score">(${data.score.toFixed(2)})</span><br>
+                        
+                        <strong>Key Themes:</strong>
+                        <ul>
+                            ${data.themes.map(theme => `<li>${theme.charAt(0).toUpperCase() + theme.slice(1)}</li>`).join('')}
+                        </ul>
+                        
+                        <strong>Recommendations:</strong>
+                        <ol>
+                            ${data.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                        </ol>
+                    </div>
+                `;
+            }
+
+            function showTypingIndicator() {
+                const typingId = "typing-" + Date.now();
+                const typingDiv = document.createElement('div');
+                typingDiv.id = typingId;
+                typingDiv.classList.add('message', 'bot-message', 'typing-indicator');
+                typingDiv.innerHTML = `
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                `;
+                chatMessages.appendChild(typingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                return typingId;
+            }
+
+            function removeTypingIndicator(id) {
+                const element = document.getElementById(id);
+                if (element) element.remove();
+            }
+
+            // Check backend connection on startup
+            async function checkBackendConnection() {
+                try {
+                    const response = await fetch('http://localhost:5000/analyze', {
+                        method: 'POST',
+                        mode: 'cors',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            feedback: "test connection"
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        showConnectionWarning();
+                    } else {
+                        console.log("Backend connection successful");
+                    }
+                } catch (error) {
+                    showConnectionWarning();
+                    console.error("Connection error:", error);
+                }
+            }
+
+            function showConnectionWarning() {
+                const warning = document.createElement('div');
+                warning.classList.add('message', 'bot-message');
+                warning.innerHTML = `
+                    <div class="analysis-result" style="border-left-color: var(--danger)">
+                        <strong>Warning:</strong> Could not connect to the analysis backend.
+                        <br>Make sure the Python server is running on port 5000.
+                        <br>You can still use the chat, but analysis won't work.
+                    </div>
+                `;
+                chatMessages.appendChild(warning);
+            }
+
+            // Initialize connection check
+            checkBackendConnection();
+        });
+    </script>
+</body>
+</html>
